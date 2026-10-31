@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Đăng Nhập & Quản Lý</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 35px 30px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .avatar-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #e2e8f0;
+        }
+
+        h2 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 22px;
+        }
+
+        p.subtitle {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 42px 12px 16px;
+            font-size: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #718096;
+        }
+
+        /* Thanh trượt xác minh */
+        .slider-container {
+            position: relative;
+            background-color: #e2e8f0;
+            border-radius: 30px;
+            height: 46px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .slider-text {
+            color: #718096;
+            font-size: 13px;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .slider-thumb {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 46px;
+            height: 46px;
+            background-color: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        .slider-track-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background-color: #c3d9ff;
+            width: 0%;
+            z-index: 1;
+        }
+
+        .slider-container.success .slider-thumb {
+            background-color: #38a169;
+            left: calc(100% - 46px) !important;
+        }
+
+        .slider-container.success .slider-track-fill {
+            width: 100% !important;
+            background-color: #c6f6d5;
+        }
+
+        .slider-container.success .slider-text {
+            color: #22543d;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #5a67d8;
+        }
+
+        .create-account-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #1a73e8;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .create-account-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: #718096;
+            margin-top: 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            margin-top: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .message.error { color: #e53e3e; }
+        .message.success { color: #38a169; }
+
+        /* Bảng Quản Lý Admin */
+        #web-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background-color: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+
+        .btn-delete {
+            background-color: #feb2b2;
+            color: #9b2c2c;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: #fc8181;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- KHUNG ĐĂNG NHẬP -->
+    <div class="card" id="login-box">
+        <img src="https://cdn-icons-png.flaticon.com/512/6195/6195699.png" alt="Lock Icon" class="avatar-img">
+        
+        <h2>Đăng Nhập Hệ Thống</h2>
+        <p class="subtitle">Nhập tài khoản, mật khẩu và trượt để xác minh</p>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <input type="text" id="login-username" placeholder="Tên tài khoản..." required autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="login-password" placeholder="Mật khẩu..." required autocomplete="off">
+                <button type="button" class="toggle-btn" onclick="togglePassword('login-password', this)">👁️</button>
+            </div>
+
+            <!-- Thanh trượt xác minh -->
+            <div class="slider-container" id="sliderContainer">
+                <div class="slider-track-fill" id="sliderTrackFill"></div>
+                <span class="slider-text" id="sliderText">>> Trượt để xác minh >></span>
+                <div class="slider-thumb" id="sliderThumb">➔</div>
+            </div>
+
+            <button type="submit" class="btn-submit">Đăng Nhập</button>
+        </form>
+
+        <div>
+            <a class="create-account-link" onclick="openRegisterModal()">Create account</a>
+        </div>
+
+        <div id="login-message" class="message"></div>
+    </div>
+
+    <!-- KHUNG TẠO TÀI KHOẢN MỚI -->
+    <div class="card" id="register-box" style="display: none;">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Register Icon" class="avatar-img">
+        
+        <h2>Tạo Tài Khoản Mới</h2>
+        <p class="subtitle">Nhập thông tin thiết lập tài khoản của bạn</p>
+
+        <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="input-group">
+                <input type="text" id="reg-username" placeholder="Tên tài khoản mới..." required autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="reg-password" placeholder="Mật khẩu mới..." required autocomplete="off">
+                <button type="button" class="toggle-btn" onclick="togglePassword('reg-password', this)">👁️</button>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="reg-repassword" placeholder="Nhập lại mật khẩu..." required autocomplete="off">
+                <button type="button" class="toggle-btn" onclick="togglePassword('reg-repassword', this)">👁️</button>
+            </div>
+
+            <button type="submit" class="btn-submit">OK (Tạo Tài Khoản)</button>
+        </form>
+
+        <div>
+            <button type="button" class="btn-back" onclick="backToLogin()">← Quay lại Đăng Nhập</button>
+        </div>
+
+        <div id="reg-message" class="message"></div>
+    </div>
+
+    <!-- BẢNG QUẢN LÝ ADMIN -->
+    <div id="web-content">
+        <div class="admin-header">
+            <h2>🎉 Chào Mừng, <span id="current-user" style="color: #667eea;"></span>!</h2>
+            <button class="btn-logout" onclick="logout()">Đăng Xuất</button>
+        </div>
+
+        <p id="welcome-text" style="margin-bottom: 20px; color: #4a5568;"></p>
+
+        <div id="admin-panel" style="display: none;">
+            <h3>📋 Quản Lý Tài Khoản Đã Tạo</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên Tài Khoản</th>
+                        <th>Ngày Tạo</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body">
+                    <!-- Danh sách tài khoản người dùng -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('custom_users')) {
+            localStorage.setItem('custom_users', JSON.stringify([]));
+        }
+
+        let isSliderVerified = false;
+
+        // Khởi tạo sự kiện trượt
+        window.addEventListener('DOMContentLoaded', () => {
+            const sliderContainer = document.getElementById('sliderContainer');
+            const sliderThumb = document.getElementById('sliderThumb');
+            const sliderTrackFill = document.getElementById('sliderTrackFill');
+            const sliderText = document.getElementById('sliderText');
+            let isDragging = false, startX = 0;
+
+            function startDrag(e) {
+                if (isSliderVerified) return;
+                isDragging = true;
+                startX = (e.touches ? e.touches[0].clientX : e.clientX) - sliderThumb.offsetLeft;
+            }
+
+            function moveDrag(e) {
+                if (!isDragging) return;
+                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let moveX = clientX - startX;
+                let maxDist = sliderContainer.clientWidth - sliderThumb.clientWidth;
+
+                if (moveX < 0) moveX = 0;
+                if (moveX > maxDist) moveX = maxDist;
+
+                sliderThumb.style.left = moveX + 'px';
+                sliderTrackFill.style.width = (moveX + sliderThumb.clientWidth / 2) + 'px';
+
+                if (moveX >= maxDist - 5) {
+                    isSliderVerified = true;
+                    sliderContainer.classList.add('success');
+                    sliderText.textContent = "✓ Đã xác minh";
+                    isDragging = false;
+                }
+            }
+
+            function stopDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                if (!isSliderVerified) resetSlider();
+            }
+
+            sliderThumb.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('mouseup', stopDrag);
+
+            sliderThumb.addEventListener('touchstart', startDrag);
+            document.addEventListener('touchmove', moveDrag);
+            document.addEventListener('touchend', stopDrag);
+        });
+
+        function resetSlider() {
+            isSliderVerified = false;
+            const sliderContainer = document.getElementById('sliderContainer');
+            const sliderThumb = document.getElementById('sliderThumb');
+            const sliderTrackFill = document.getElementById('sliderTrackFill');
+            const sliderText = document.getElementById('sliderText');
+
+            sliderContainer.classList.remove('success');
+            sliderThumb.style.left = '0px';
+            sliderTrackFill.style.width = '0px';
+            sliderText.textContent = ">> Trượt để xác minh >>";
+        }
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        function openRegisterModal() {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('register-box').style.display = 'block';
+            document.getElementById('reg-message').textContent = "";
+            document.getElementById('register-form').reset();
+        }
+
+        function backToLogin() {
+            document.getElementById('register-box').style.display = 'none';
+            document.getElementById('login-box').style.display = 'block';
+            document.getElementById('login-message').textContent = "";
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const repassword = document.getElementById('reg-repassword').value;
+            const msg = document.getElementById('reg-message');
+
+            if (username.toLowerCase() === 'kem') {
+                msg.className = "message error";
+                msg.textContent = "✕ Tên tài khoản này dành riêng cho Admin!";
+                return;
+            }
+
+            if (password !== repassword) {
+                msg.className = "message error";
+                msg.textContent = "✕ Mật khẩu nhập lại không khớp!";
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('custom_users')) || [];
+            if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                msg.className = "message error";
+                msg.textContent = "✕ Tên tài khoản đã tồn tại!";
+                return;
+            }
+
+            users.push({
+                username: username,
+                password: password,
+                createdAt: new Date().toLocaleString('vi-VN')
+            });
+
+            localStorage.setItem('custom_users', JSON.stringify(users));
+            msg.className = "message success";
+            msg.textContent = "✓ Tạo tài khoản thành công! Đang chuyển về đăng nhập...";
+
+            setTimeout(() => {
+                backToLogin();
+                document.getElementById('login-username').value = username;
+            }, 1200);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            const msg = document.getElementById('login-message');
+
+            if (!isSliderVerified) {
+                msg.className = "message error";
+                msg.textContent = "⚠ Vui lòng kéo thanh trượt xác minh!";
+                return;
+            }
+
+            if (usernameInput === 'Kem' && passwordInput === 'Kem2017@') {
+                msg.className = "message success";
+                msg.textContent = "✓ Đăng nhập Admin thành công!";
+                setTimeout(() => showWeb(usernameInput, true), 800);
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('custom_users')) || [];
+            const foundUser = users.find(u => u.username === usernameInput && u.password === passwordInput);
+
+            if (foundUser) {
+                msg.className = "message success";
+                msg.textContent = "✓ Đăng nhập thành công! Đang chuyển hướng sang YouTube...";
+                setTimeout(() => showWeb(usernameInput, false), 800);
+            } else {
+                msg.className = "message error";
+                msg.textContent = "✕ Sai tên tài khoản hoặc mật khẩu!";
+            }
+        }
+
+        function showWeb(username, isAdmin) {
+            if (isAdmin) {
+                document.getElementById('login-box').style.display = 'none';
+                document.getElementById('register-box').style.display = 'none';
+                document.getElementById('web-content').style.display = 'block';
+                document.getElementById('current-user').textContent = username;
+                document.getElementById('welcome-text').textContent = "Bạn đang đăng nhập với quyền Quản Trị Viên (Admin). Dưới đây là danh sách các tài khoản người dùng đã được tạo:";
+                document.getElementById('admin-panel').style.display = 'block';
+                loadUserTable();
+            } else {
+                window.location.href = "https://docs.google.com/forms/d/e/1FAIpQLSclrVwDo7Xt93Kg4TCwCUQ-T7IAWM7Y79fBjYh7CDUeJeL8wQ/viewform?usp=sharing&ouid=101281308269467216490";
+            }
+        }
+
+        function loadUserTable() {
+            let users = JSON.parse(localStorage.getItem('custom_users')) || [];
+            const tbody = document.getElementById('user-table-body');
+            tbody.innerHTML = "";
+
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#718096;">Chưa có tài khoản người dùng nào được tạo.</td></tr>`;
+                return;
+            }
+
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${user.username}</strong></td>
+                    <td>${user.createdAt}</td>
+                    <td><button class="btn-delete" onclick="deleteUser('${user.username}')">Xóa</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteUser(username) {
+            if (confirm(`Bạn có chắc muốn xóa tài khoản "${username}" không?`)) {
+                let users = JSON.parse(localStorage.getItem('custom_users')) || [];
+                users = users.filter(u => u.username !== username);
+                localStorage.setItem('custom_users', JSON.stringify(users));
+                loadUserTable();
+            }
+        }
+
+        function logout() {
+            document.getElementById('web-content').style.display = 'none';
+            document.getElementById('login-box').style.display = 'block';
+            document.getElementById('login-form').reset();
+            document.getElementById('login-message').textContent = "";
+            resetSlider();
+        }
+    </script>
+</body>
+</html>
